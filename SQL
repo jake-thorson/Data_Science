@@ -1,0 +1,80 @@
+-- 1) Email address for a specific customer --UPDATE: I verified that non of the customers actually have email addresses. Bizzare but we will work with it. Instead for number 1 find the Address for sales person number 1
+
+select emailaddress
+from AdventureWorks.person.emailaddress
+join AdventureWorks.person.BusinessEntityContact
+on BusinessEntityContact.BusinessEntityID = EmailAddress.BusinessEntityID
+join AdventureWorks.sales.Customer
+on EmailAddress.BusinessEntityID = sales.customer.PersonID
+
+-- 2) Quantity of items in an order - any order
+
+select top 100 orderqty from adventureworks.sales.SalesOrderDetail
+
+-- 3) All People living in Apartments (if they are living in an apartment, then they would need to put something in the address line 2 box
+
+select top 100 * from adventureworks.person.address
+where addressline2 != 'NULL'
+
+-- 4) Zipcode for a specific person
+
+select firstname, lastname, postalcode from adventureworks.person.address 
+join AdventureWorks.Person.StateProvince
+on address.stateprovinceid = StateProvince.StateProvinceID
+join AdventureWorks.sales.salesperson
+on StateProvince.territoryid = salesperson.territoryid
+join adventureworks.person.person
+on salesperson.BusinessEntityID = person.businessentityid
+where firstname = 'Garrett' and lastname = 'Vargas' --You can use any name, just used as an example for a specific person
+
+-- 5) All orders for a specific customer and the Order Qty
+
+SELECT customer.[customerid], person.[firstname], person.[lastname], sum(orderqty) as products_bought, salesorderdetail.[salesorderid]
+FROM adventureworks.Sales.Customer
+INNER JOIN adventureworks.Person.Person ON Customer.[PersonID] = Person.[BusinessEntityID]
+JOIN adventureworks.Sales.SalesOrderHeader ON Salesorderheader.[CustomerID] = Customer.[CustomerID]
+join adventureworks.sales.salesorderdetail on salesorderdetail.[salesorderid] = salesorderheader.[salesorderid]
+where customer.[customerid] = 29485
+group by customer.[customerid], person.[firstname], person.[lastname], salesorderdetail.[salesorderid]
+
+
+-- 6) 50 customers with the most sales
+
+select distinct top 50  sum(subtotal) as all_money_spent, customer.[customerid]
+FROM adventureworks.Sales.Customer
+JOIN adventureworks.Sales.SalesOrderHeader ON Salesorderheader.[CustomerID] = Customer.[CustomerID]
+group by customer.[customerid]
+order by all_money_spent desc
+
+-- 7) 50 sales persons with the most sales
+
+select top 50 salesYTD, salesperson.[businessentityid], firstname, lastname from AdventureWorks.sales.salesperson
+join adventureworks.person.person
+on salesperson.businessentityid = person.businessentityid
+order by salesYTD DESC -- there are only 17 sales people?
+
+--8) Table with customer information(all infor from Person.Person as well as full 
+-- address(AdressLine1,city,state,postalcode, country all in one column displayed as Address), 
+-- email and passwordhash). Select 30 customers
+
+
+select top 30 concat(title, ' ', firstname, ' ', middlename, ' ', lastname, ' ', suffix) as full_name,
+persontype, emailpromotion, additionalcontactinfo, demographics,
+concat(addressline1, ' ', addressline2, ' ', city, ' ', postalcode, ' ', stateprovince.[name], countryregion.[name]) as full_address,
+emailaddress.[emailaddress], passwordhash
+from adventureworks.person.person
+inner join adventureworks.person.businessentityaddress
+on BusinessEntityAddress.BusinessEntityID = person.BusinessEntityID
+inner join AdventureWorks.Person.Address
+on address.addressID = BusinessEntityAddress.AddressID
+inner join AdventureWorks.person.StateProvince
+on stateprovince.StateProvinceID = address.StateProvinceID
+inner join AdventureWorks.person.CountryRegion
+on countryregion.countryregioncode = StateProvince.CountryRegionCode
+INNER JOIN adventureworks.sales.customer
+ON Customer.PersonID = Person.BusinessEntityID
+inner join AdventureWorks.person.password
+on password.BusinessEntityID = person.BusinessEntityID
+inner join AdventureWorks.person.EmailAddress
+on EmailAddress.BusinessEntityID = person.BusinessEntityID
+

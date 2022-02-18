@@ -1,0 +1,12 @@
+import requests
+import json
+url = "https://date.nager.at/api/v2/publicholidays/2020/US"
+r = requests.get(url)
+#print(r.text)                            #<-- Will print the full results
+d = json.loads(r.text)
+#print(d[0])                              #<-- Will print a specific element
+print('A list of days to take off work')
+print()
+for i in d:
+    print(i['localName'], "occurs on ", i['date'])
+    

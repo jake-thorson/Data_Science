@@ -1,0 +1,32 @@
+library(tidyverse)
+library(tidyr)
+library(readr)
+library(datasets)
+library(dplyr)
+
+
+#read in csv data. The read_csv method creates a dataframe/tibble by default
+sbData <- read_csv("C:\\Users\\Dell 4\\Documents\\ds\\starbucks_drinkMenu_expanded.csv")
+head(sbData)
+
+#rename columns and remove unwanted characters
+colnames(sbData) <- c("category", "beverage", "size", "calories", "fat", "trans_fat","sat_fat", "sodium", "carbs", "chlesterol", "fibre", "sugar", "protein", "vit_a", "vit_c", "calcium", "iron", "caffeine")
+head(sbData)
+
+#Change the encoding of the beverage_category and beverage columns to be ascii
+sbData$beverage <- iconv(sbData$beverage, 'utf-8', 'ascii', sub='')
+head(sbData)
+
+#drop unwanted columns
+sbData = subset(sbData, select = c(category,beverage,size,fat,carbs,protein,caffeine))
+head(sbData)
+
+#add another column based on another column's values
+sbData <- sbData %>% 
+  mutate(will_make_you_anxious = if_else(caffeine > 2, "No", "Yes"))
+print(sbData)
+view(sbData)
+
+# remove n/as for one or all columns
+sbData$caffeine[is.na(sbData$caffeine)]<-mean(sbData$caffeine,na.rm=TRUE)
+head(sbData)

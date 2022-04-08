@@ -1,0 +1,14 @@
+libary(help = 'datasets')
+install.packages("ellipsis")
+
+mtcars
+
+plot(mtcars$hp, mtcars$mpg, main = 'Horsepower by MPG', xlab = "horsepower", ylab = "mpg")
+
+abline(lm(mpg ~ hp, data = mtcars), col = "red")
+
+library(car)
+
+scatterplot(mpg ~ hp | cyl, data = mtcars, xlab = "horsepower", ylab = "mpg", main = "enhanced scattr plot")
+
+#, labels=df$column
